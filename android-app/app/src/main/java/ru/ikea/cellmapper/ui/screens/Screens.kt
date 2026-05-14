@@ -13,12 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -33,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ru.ikea.cellmapper.data.ItemEntity
+import ru.ikea.cellmapper.scanner.HiddenScannerInput
 import ru.ikea.cellmapper.ui.components.EditItemDialog
 import ru.ikea.cellmapper.ui.components.ScanDialog
 import ru.ikea.cellmapper.viewmodel.MainViewModel
@@ -50,14 +47,15 @@ fun HomeScreen(
     val fileName by viewModel.fileName.collectAsState()
     val scanAndPlace by viewModel.scanAndPlaceEnabled.collectAsState()
     val refocusTick by viewModel.refocusTick.collectAsState()
+    val scannerEnabled by viewModel.scannerEnabled.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("ИКЕЯ — Места") },
                 actions = {
-                    IconButton(onClick = onOpenSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Настройки")
+                    TextButton(onClick = onOpenSettings) {
+                        Text("Настройки")
                     }
                 }
             )
@@ -138,8 +136,8 @@ fun HomeScreen(
         )
     }
 
-    ru.ikea.cellmapper.scanner.HiddenScannerInput(
-        enabled = viewModel.scannerEnabled,
+    HiddenScannerInput(
+        enabled = scannerEnabled,
         onBarcodeScanned = viewModel::onBarcodeScanned,
         refocusKey = refocusTick
     )

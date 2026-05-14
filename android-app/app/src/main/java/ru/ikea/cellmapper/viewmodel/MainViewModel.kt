@@ -6,10 +6,11 @@ import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.ikea.cellmapper.data.AppDatabase
@@ -61,8 +62,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _refocusTick = MutableStateFlow(0)
     val refocusTick: StateFlow<Int> = _refocusTick.asStateFlow()
 
-    val scannerEnabled: Boolean
-        get() = _scanDialog.value == null && _editDialog.value == null
+    val scannerEnabled: StateFlow<Boolean> = combine(_scanDialog, _editDialog) { scan, edit ->
+        scan == null && edit == null
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     init {
         viewModelScope.launch {

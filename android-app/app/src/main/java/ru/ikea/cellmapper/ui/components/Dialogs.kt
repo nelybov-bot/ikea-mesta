@@ -1,5 +1,6 @@
 package ru.ikea.cellmapper.ui.components
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ru.ikea.cellmapper.viewmodel.ScanDialogState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanDialog(
     state: ScanDialogState,
@@ -149,7 +151,7 @@ private fun DuplicateDialog(
                 Button(
                     onClick = {
                         val addQty = if (scanAndPlace) addQtyText.toIntOrNull()?.coerceAtLeast(1) ?: 1 else 0
-                        onSave(addQty, keepOldCell = true, newCell = existingCell)
+                        onSave(addQty, true, existingCell)
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -162,7 +164,7 @@ private fun DuplicateDialog(
                     onClick = {
                         val newCell = newCellText.toIntOrNull() ?: return@OutlinedButton
                         val addQty = if (scanAndPlace) addQtyText.toIntOrNull()?.coerceAtLeast(1) ?: 1 else 0
-                        onSave(addQty, keepOldCell = false, newCell = newCell)
+                        onSave(addQty, false, newCell)
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -179,6 +181,7 @@ private fun DuplicateDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditItemDialog(
     barcode: String,
