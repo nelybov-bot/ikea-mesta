@@ -14,6 +14,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 class SettingsRepository(private val context: Context) {
     private val scanAndPlaceKey = booleanPreferencesKey("scan_and_place")
+    private val autoEnterKey = booleanPreferencesKey("auto_enter")
     private val fileUriKey = stringPreferencesKey("file_uri")
     private val fileNameKey = stringPreferencesKey("file_name")
 
@@ -21,11 +22,19 @@ class SettingsRepository(private val context: Context) {
         prefs[scanAndPlaceKey] ?: true
     }
 
+    val autoEnterEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[autoEnterKey] ?: true
+    }
+
     val fileUri: Flow<String?> = context.dataStore.data.map { it[fileUriKey] }
     val fileName: Flow<String?> = context.dataStore.data.map { it[fileNameKey] }
 
     suspend fun setScanAndPlaceEnabled(enabled: Boolean) {
         context.dataStore.edit { it[scanAndPlaceKey] = enabled }
+    }
+
+    suspend fun setAutoEnterEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[autoEnterKey] = enabled }
     }
 
     suspend fun setFile(uri: String, name: String) {

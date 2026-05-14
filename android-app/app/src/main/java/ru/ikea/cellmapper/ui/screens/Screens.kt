@@ -48,6 +48,7 @@ fun HomeScreen(
     val scanAndPlace by viewModel.scanAndPlaceEnabled.collectAsState()
     val refocusTick by viewModel.refocusTick.collectAsState()
     val scannerEnabled by viewModel.scannerEnabled.collectAsState()
+    val autoEnter by viewModel.autoEnterEnabled.collectAsState()
 
     Scaffold(
         topBar = {
@@ -138,6 +139,7 @@ fun HomeScreen(
 
     HiddenScannerInput(
         enabled = scannerEnabled,
+        autoEnter = autoEnter,
         onBarcodeScanned = viewModel::onBarcodeScanned,
         refocusKey = refocusTick
     )
@@ -176,6 +178,7 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     val scanAndPlace by viewModel.scanAndPlaceEnabled.collectAsState()
+    val autoEnter by viewModel.autoEnterEnabled.collectAsState()
     val fileName by viewModel.fileName.collectAsState()
     val context = LocalContext.current
 
@@ -216,6 +219,21 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Авто-Enter после скана", fontWeight = FontWeight.Bold)
+                    Text("Пауза ~0.3 с — обработка без Enter (для сканеров без суффикса).")
+                }
+                Switch(
+                    checked = autoEnter,
+                    onCheckedChange = viewModel::setAutoEnter
+                )
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

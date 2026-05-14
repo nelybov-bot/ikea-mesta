@@ -48,6 +48,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val items = repository.items.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val scanAndPlaceEnabled = settings.scanAndPlaceEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+    val autoEnterEnabled = settings.autoEnterEnabled.stateIn(viewModelScope, SharingStarted.Eagerly, true)
     val fileName = settings.fileName.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val _scanDialog = MutableStateFlow<ScanDialogState?>(null)
@@ -174,6 +175,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setScanAndPlace(enabled: Boolean) {
         viewModelScope.launch { settings.setScanAndPlaceEnabled(enabled) }
+    }
+
+    fun setAutoEnter(enabled: Boolean) {
+        viewModelScope.launch { settings.setAutoEnterEnabled(enabled) }
     }
 
     fun onFileSelected(uri: Uri, displayName: String) {

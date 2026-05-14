@@ -23,13 +23,13 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import ru.ikea.cellmapper.logic.BarcodeLogic
 
-/**
- * Невидимое поле с постоянным фокусом: внешний сканер (HID) печатает сюда
- * без необходимости открывать видимое поле ввода.
- */
+/** Пауза после последнего символа сканера — затем авто-обработка (как Enter). */
+private const val AUTO_ENTER_MS = 280L
+
 @Composable
 fun HiddenScannerInput(
     enabled: Boolean,
+    autoEnter: Boolean,
     onBarcodeScanned: (String) -> Unit,
     refocusKey: Any = Unit
 ) {
@@ -53,8 +53,17 @@ fun HiddenScannerInput(
 
     LaunchedEffect(enabled) {
         while (enabled) {
-            delay(600)
+            delay(500)
             runCatching { focusRequester.requestFocus() }
+        }
+    }
+
+    // Авто-Enter: после паузы в вводе обработать буфер (сканеры без Enter)
+    LaunchedEffect(buffer, enabled, autoEnter) {
+        if (!enabled || !autoEnter || buffer.isBlank()) return@LaunchedEffect
+        delay(AUTO_ENTER_MS)
+        if (buffer.isNotBlank()) {
+            flush()
         }
     }
 
@@ -65,8 +74,8 @@ fun HiddenScannerInput(
                 if (!enabled) return@BasicTextField
 
                 val cleaned = BarcodeLogic.cleanBuffer(newValue)
-                if (cleaned.contains('\n') || cleaned.contains('\r')) {
-                    buffer = cleaned.replace("\n", "").replace("\r", "")
+                if (cleaned.any { BarcodeLogic.isTerminatorChar(it) }) {
+                    buffer = cleaned.filterNot { BarcodeLogic.isTerminatorChar(it) }
                     flush()
                     return@BasicTextField
                 }
