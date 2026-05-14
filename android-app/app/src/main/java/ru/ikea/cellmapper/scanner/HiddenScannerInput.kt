@@ -16,11 +16,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -69,7 +64,14 @@ fun HiddenScannerInput(
             onValueChange = { newValue ->
                 if (!enabled) return@BasicTextField
 
-                buffer = BarcodeLogic.cleanBuffer(newValue)
+                val cleaned = BarcodeLogic.cleanBuffer(newValue)
+                if (cleaned.contains('\n') || cleaned.contains('\r')) {
+                    buffer = cleaned.replace("\n", "").replace("\r", "")
+                    flush()
+                    return@BasicTextField
+                }
+
+                buffer = cleaned
 
                 val wrapped = Regex("=(\\d{8,})=").find(buffer)
                 if (wrapped != null) {
@@ -79,18 +81,7 @@ fun HiddenScannerInput(
             },
             modifier = Modifier
                 .size(1.dp)
-                .focusRequester(focusRequester)
-                .onPreviewKeyEvent { event ->
-                    if (!enabled) return@onPreviewKeyEvent false
-                    if (event.type == KeyEventType.KeyDown &&
-                        (event.key == Key.Enter || event.key == Key.NumPadEnter || event.key == Key.Tab)
-                    ) {
-                        flush()
-                        true
-                    } else {
-                        false
-                    }
-                },
+                .focusRequester(focusRequester),
             textStyle = TextStyle(color = Color.Transparent, fontSize = 1.sp),
             cursorBrush = SolidColor(Color.Transparent),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
